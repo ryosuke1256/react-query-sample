@@ -1,25 +1,35 @@
-import logo from './logo.svg';
+import axios from 'axios';
+import { useQuery } from 'react-query';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const { data: users, status } = useQuery('users', async () => {
+    const { data } = await axios.get('https://jsonplaceholder.typicode.com/users');
+    return data;
+  });
+
+  console.log(status);
+  console.log(users);
+
+  if (status === 'loading') {
+    return (
+      <>
+        {/* childrenが空だとcss読み込まれないからloadingは入れといた。color:whiteで見えないようにしてる */}
+        <div className="text">loading</div>
+        <div className="loader"></div>
+      </>
+    );
+  } else if (status === 'error') {
+    return <div className="error">error</div>;
+  } else {
+    return (
+      <ul className="success">
+        {users.map((task) => (
+          <li key={task.id}>{task.name}</li>
+        ))}
+      </ul>
+    );
+  }
 }
 
 export default App;
